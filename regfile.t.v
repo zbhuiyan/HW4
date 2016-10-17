@@ -3,7 +3,7 @@
 // or broken register files, and verifying that it correctly identifies each
 //------------------------------------------------------------------------------
 
-module hw4testbenchharness();
+module hw4testbenchharness(); 
 
   wire[31:0]	ReadData1;	// Data from first register read
   wire[31:0]	ReadData2;	// Data from second register read
@@ -14,11 +14,12 @@ module hw4testbenchharness();
   wire		RegWrite;	// Enable writing of register when High
   wire		Clk;		// Clock (Positive Edge Triggered)
 
+  wire   endtest;
   reg		begintest;	// Set High to begin testing register file
   wire		dutpassed;	// Indicates whether register file passed tests
 
   // Instantiate the register file being tested.  DUT = Device Under Test
-  regfile DUT
+  regfile DUT //devide under test
   (
     .ReadData1(ReadData1),
     .ReadData2(ReadData2),
@@ -138,6 +139,66 @@ output reg		Clk
     $display("Test Case 2 Failed");
   end
 
+
+
+  // Test Case 3: 
+  //   Write '15' to register 2 without enable, verify with Read Ports 1 and 2
+  WriteRegister = 5'd2;
+  WriteData = 32'd15;
+  RegWrite = 0; //enable is 0
+  ReadRegister1 = 5'd2;
+  ReadRegister2 = 5'd2;
+  #5 Clk=1; #5 Clk=0;
+
+  if((ReadData1 != 15) || (ReadData2 != 15)) begin
+    dutpassed = 0;
+    $display("Test Case 3 Failed - Write Enable is not working");
+  end
+
+  // Test Case 4: 
+  //   Write '15' to register 2, verify with Read Ports 1 and 2
+  //   
+  WriteRegister = 5'd2;
+  WriteData = 32'd15;
+  RegWrite = 1;
+  ReadRegister1 = 5'd4;
+  ReadRegister2 = 5'd2;
+  #5 Clk=1; #5 Clk=0;
+
+  if((ReadData1 != 15) || (ReadData2 != 15)) begin
+    dutpassed = 0;
+    $display("Test Case 4 Failed - The decoder is not working");
+  end
+
+  // Test Case 5: 
+  //   Write '15' to register 0, verify with Read Ports 1 and 2
+  //   
+  WriteRegister = 5'd0;
+  WriteData = 32'd15;
+  RegWrite = 1;
+  ReadRegister1 = 5'd0;
+  ReadRegister2 = 5'd0;
+  #5 Clk=1; #5 Clk=0;
+
+  if((ReadData1 != 0) || (ReadData2 != 0)) begin
+    dutpassed = 0;
+    $display("Test Case 5 Failed - Register 0 is actually register, not constant");
+  end
+
+  // Test Case 6: 
+  //   Port 2 is broken, always reads register 17
+  //   
+  WriteRegister = 5'd4;
+  WriteData = 32'd15;
+  RegWrite = 1;
+  ReadRegister1 = 5'd4;
+  ReadRegister2 = 5'd17;
+  #5 Clk=1; #5 Clk=0;
+
+  if((ReadData1 != 15) || (ReadData2 != 15)) begin
+    dutpassed = 0;
+    $display("Test Case 6 Failed - Port 2 is broken");
+  end
 
   // All done!  Wait a moment and signal test completion.
   #5

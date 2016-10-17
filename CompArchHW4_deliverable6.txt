@@ -1,0 +1,20 @@
+module decoder1to32
+(
+output[31:0]    out,
+input           enable,
+input[4:0]      address
+);
+    assign out = enable<<address; 
+endmodule
+
+
+Explanation: This decoder selects which register of the register file is being written to. Since the address input is 5 bits, it can hold a decimal value anywhere in the range of 0 to 31. In binary, this it can be between 00000 to 11111. If we left-shift enable by between 0 to 31, you get an output with at most 32 bits. 
+
+Examples:
+1) 32'b00000000000000000000000000000001 << 0 = 32'b00000000000000000000000000000001
+2) 32'b00000000000000000000000000000001 << 1 = 32'b00000000000000000000000000000010
+3) 32'b00000000000000000000000000000001 << 2 = 32'b00000000000000000000000000000100
+...
+32) 32'b00000000000000000000000000000001 << 31 = 32'b10000000000000000000000000000000
+
+This allows the decoder to select which of the 32 registers the register file is being written to. 
